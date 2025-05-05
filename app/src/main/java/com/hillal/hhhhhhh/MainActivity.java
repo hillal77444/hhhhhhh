@@ -1,6 +1,7 @@
 package com.hillal.hhhhhhh;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.view.Menu;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
@@ -23,26 +25,63 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        Log.d(TAG, "onCreate started");
+        try {
+            binding = ActivityMainBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
 
-        // إعداد NavController
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_content_main);
-        navController = navHostFragment.getNavController();
+            // إعداد NavController
+            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_content_main);
+            if (navHostFragment != null) {
+                navController = navHostFragment.getNavController();
+                AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                        R.id.homeFragment,
+                        R.id.reportsFragment
+                ).build();
+                NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+            } else {
+                Log.e(TAG, "NavHostFragment is null");
+            }
 
-        // إعداد AppBarConfiguration
-        appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.homeFragment,
-                R.id.reportsFragment
-        ).build();
+            // ربط BottomNavigationView مع NavController
+            BottomNavigationView bottomNav = binding.bottomNavView;
+            NavigationUI.setupWithNavController(bottomNav, navController);
+            Log.d(TAG, "onCreate completed successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreate", e);
+            throw e;
+        }
+    }
 
-        // ربط ActionBar مع NavController
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+    }
 
-        // ربط BottomNavigationView مع NavController
-        BottomNavigationView bottomNav = binding.bottomNavView;
-        NavigationUI.setupWithNavController(bottomNav, navController);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
@@ -69,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        return navController.navigateUp() || super.onSupportNavigateUp();
     }
 }
