@@ -70,7 +70,7 @@ public class DashboardFragment extends Fragment {
 
         // مراقبة التغييرات في قائمة الحسابات
         viewModel.getAllAccounts().observe(getViewLifecycleOwner(), accounts -> {
-            accountAdapter.setAccounts(accounts);
+            accountAdapter.submitList(accounts);
         });
 
         // إعداد أزرار التنقل
