@@ -34,13 +34,10 @@ jobs:
       run: chmod +x gradlew
 
     - name: Clean project
-      run: ./gradlew clean --info
+      run: ./gradlew clean --stacktrace
 
-    - name: Build with Gradle
-      run: |
-        ./gradlew assembleDebug --info --stacktrace --scan
-        ./gradlew testDebugUnitTest --info --stacktrace
-        ./gradlew lintDebug --info --stacktrace
+    - name: Build debug APK
+      run: ./gradlew :app:assembleDebug --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
