@@ -29,27 +29,38 @@ public class MainActivity extends AppCompatActivity {
         try {
             binding = ActivityMainBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
+            Log.d(TAG, "Layout inflated successfully");
 
             // إعداد NavController
             NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_content_main);
             if (navHostFragment != null) {
                 navController = navHostFragment.getNavController();
-                AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                Log.d(TAG, "NavController initialized");
+                
+                appBarConfiguration = new AppBarConfiguration.Builder(
                         R.id.homeFragment,
                         R.id.reportsFragment
                 ).build();
                 NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+                Log.d(TAG, "ActionBar setup completed");
             } else {
-                Log.e(TAG, "NavHostFragment is null");
+                Log.e(TAG, "NavHostFragment is null - This is a critical error");
+                return;
             }
 
             // ربط BottomNavigationView مع NavController
             BottomNavigationView bottomNav = binding.bottomNavView;
-            NavigationUI.setupWithNavController(bottomNav, navController);
+            if (bottomNav != null) {
+                NavigationUI.setupWithNavController(bottomNav, navController);
+                Log.d(TAG, "BottomNavigationView setup completed");
+            } else {
+                Log.e(TAG, "BottomNavigationView is null");
+            }
+
             Log.d(TAG, "onCreate completed successfully");
         } catch (Exception e) {
-            Log.e(TAG, "Error in onCreate", e);
+            Log.e(TAG, "Critical error in onCreate", e);
             throw e;
         }
     }
@@ -108,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        return navController.navigateUp() || super.onSupportNavigateUp();
+        try {
+            return navController.navigateUp() || super.onSupportNavigateUp();
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onSupportNavigateUp", e);
+            return super.onSupportNavigateUp();
+        }
     }
 }
