@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.hillal.hhhhhhh.databinding.FragmentHomeBinding;
 import com.hillal.hhhhhhh.db.AppDatabase;
@@ -63,7 +62,7 @@ public class HomeFragment extends Fragment {
         try {
             adapter = new ReportAdapter(reports, report -> {
                 Log.d(TAG, "Report clicked: " + report.id);
-                // معالجة النقر على التقرير
+                Toast.makeText(requireContext(), "تم النقر على التقرير: " + report.title, Toast.LENGTH_SHORT).show();
             });
             binding.reportsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             binding.reportsRecyclerView.setAdapter(adapter);
@@ -79,7 +78,8 @@ public class HomeFragment extends Fragment {
         try {
             binding.addReportButton.setOnClickListener(v -> {
                 Log.d(TAG, "Add button clicked");
-                // معالجة النقر على زر الإضافة
+                Toast.makeText(requireContext(), "تم النقر على زر الإضافة", Toast.LENGTH_SHORT).show();
+                // TODO: Add new report dialog
             });
             Log.d(TAG, "Add Button setup completed");
         } catch (Exception e) {
