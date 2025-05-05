@@ -5,89 +5,104 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.hillal.hhhhhhh.databinding.FragmentHomeBinding;
+import com.hillal.hhhhhhh.db.AppDatabase;
+import com.hillal.hhhhhhh.db.Report;
+import com.hillal.hhhhhhh.db.ReportDao;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
-    private AccountViewModel accountViewModel;
-    private AccountAdapter accountAdapter;
+    private ReportAdapter adapter;
+    private ReportDao reportDao;
+    private List<Report> reports = new ArrayList<>();
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate started");
+        try {
+            AppDatabase db = AppDatabase.getDatabase(requireContext());
+            reportDao = db.reportDao();
+            Log.d(TAG, "Database initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing database", e);
+            Toast.makeText(requireContext(), "خطأ في تهيئة قاعدة البيانات", Toast.LENGTH_LONG).show();
+        }
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView started");
         try {
             binding = FragmentHomeBinding.inflate(inflater, container, false);
+            View root = binding.getRoot();
+            Log.d(TAG, "Layout inflated successfully");
+
+            setupRecyclerView();
+            setupAddButton();
+            loadReports();
             Log.d(TAG, "onCreateView completed successfully");
-            return binding.getRoot();
+            return root;
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreateView", e);
+            Toast.makeText(requireContext(), "خطأ في تهيئة الواجهة", Toast.LENGTH_LONG).show();
             throw e;
         }
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "onViewCreated started");
+    private void setupRecyclerView() {
+        Log.d(TAG, "Setting up RecyclerView");
         try {
-            // إعداد ViewModels
-            accountViewModel = new ViewModelProvider(this).get(AccountViewModel.class);
-
-            // إعداد RecyclerView
-            accountAdapter = new AccountAdapter(account -> {
-                Bundle args = new Bundle();
-                args.putInt("accountId", account.getId());
-                Navigation.findNavController(view).navigate(R.id.action_homeFragment_to_accountDetailsFragment, args);
+            adapter = new ReportAdapter(reports, report -> {
+                Log.d(TAG, "Report clicked: " + report.id);
+                Toast.makeText(requireContext(), "تم النقر على التقرير: " + report.title, Toast.LENGTH_SHORT).show();
             });
-            
-            binding.accountsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-            binding.accountsRecyclerView.setAdapter(accountAdapter);
-
-            // مراقبة تغييرات الحسابات
-            accountViewModel.getAllAccounts().observe(getViewLifecycleOwner(), accounts -> {
-                accountAdapter.submitList(accounts);
-                updateTotalBalances(accounts);
-            });
-
-            // إعداد الأزرار
-            binding.addAccountButton.setOnClickListener(v -> 
-                Navigation.findNavController(view).navigate(R.id.action_homeFragment_to_addAccountFragment));
-                
-            binding.searchFilterButton.setOnClickListener(v -> 
-                Navigation.findNavController(view).navigate(R.id.action_homeFragment_to_searchFilterFragment));
-            
-            Log.d(TAG, "onViewCreated completed successfully");
+            binding.reportsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+            binding.reportsRecyclerView.setAdapter(adapter);
+            Log.d(TAG, "RecyclerView setup completed");
         } catch (Exception e) {
-            Log.e(TAG, "Error in onViewCreated", e);
-            throw e;
+            Log.e(TAG, "Error setting up RecyclerView", e);
+            Toast.makeText(requireContext(), "خطأ في إعداد قائمة التقارير", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void updateTotalBalances(List<Account> accounts) {
+    private void setupAddButton() {
+        Log.d(TAG, "Setting up Add Button");
         try {
-            double totalDebtor = 0;
-            double totalCreditor = 0;
-            
-            for (Account account : accounts) {
-                if (account.getBalance() < 0) {
-                    totalDebtor += Math.abs(account.getBalance());
-                } else {
-                    totalCreditor += account.getBalance();
-                }
+            binding.addReportButton.setOnClickListener(v -> {
+                Log.d(TAG, "Add button clicked");
+                Toast.makeText(requireContext(), "تم النقر على زر الإضافة", Toast.LENGTH_SHORT).show();
+                // TODO: Add new report dialog
+            });
+            Log.d(TAG, "Add Button setup completed");
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up Add Button", e);
+            Toast.makeText(requireContext(), "خطأ في إعداد زر الإضافة", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void loadReports() {
+        Log.d(TAG, "Loading reports");
+        try {
+            if (reportDao != null) {
+                reports.clear();
+                reports.addAll(reportDao.getAllReports());
+                adapter.notifyDataSetChanged();
+                Log.d(TAG, "Reports loaded successfully. Count: " + reports.size());
+            } else {
+                Log.e(TAG, "ReportDao is null");
+                Toast.makeText(requireContext(), "خطأ في تحميل التقارير", Toast.LENGTH_LONG).show();
             }
-            
-            binding.totalDebtorText.setText(String.format("%.2f", totalDebtor));
-            binding.totalCreditorText.setText(String.format("%.2f", totalCreditor));
-            binding.netBalanceText.setText(String.format("%.2f", totalCreditor - totalDebtor));
         } catch (Exception e) {
-            Log.e(TAG, "Error in updateTotalBalances", e);
+            Log.e(TAG, "Error loading reports", e);
+            Toast.makeText(requireContext(), "خطأ في تحميل التقارير", Toast.LENGTH_LONG).show();
         }
     }
 
