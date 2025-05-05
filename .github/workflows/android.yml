@@ -33,13 +33,13 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
-    - name: Check Gradle version
-      run: ./gradlew --version
-
     - name: Build debug APK
       run: |
+        echo "=== Starting Build Process ==="
         ./gradlew clean
-        ./gradlew :app:assembleDebug --stacktrace --info
+        echo "=== Building APK ==="
+        ./gradlew :app:assembleDebug --no-daemon --console=plain --stacktrace | grep -i "error\|exception\|fail"
+        echo "=== Build Process Completed ==="
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
