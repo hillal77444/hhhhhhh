@@ -38,10 +38,13 @@ jobs:
         echo "=== Starting Build Process ==="
         ./gradlew clean
         echo "=== Building APK ==="
-        ./gradlew :app:assembleDebug --no-daemon --console=plain --stacktrace | grep -i "error\|exception\|fail"
+        ./gradlew :app:assembleDebug --no-daemon --console=plain --stacktrace
+        echo "=== Checking for APK ==="
+        ls -la app/build/outputs/apk/debug/
         echo "=== Build Process Completed ==="
 
     - name: Upload APK
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
