@@ -5,39 +5,29 @@ import android.util.Log;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 @Database(entities = {Report.class}, version = 1, exportSchema = false)
+@TypeConverters(Converters.class)
 public abstract class AppDatabase extends RoomDatabase {
-    private static final String TAG = "AppDatabase";
-    private static volatile AppDatabase INSTANCE;
+    private static final String DATABASE_NAME = "app_database";
+    private static volatile AppDatabase instance;
 
     public abstract ReportDao reportDao();
 
-    public static AppDatabase getDatabase(final Context context) {
-        Log.d(TAG, "Getting database instance");
-        if (INSTANCE == null) {
-            synchronized (AppDatabase.class) {
-                if (INSTANCE == null) {
-                    try {
-                        Log.d(TAG, "Creating new database instance");
-                        INSTANCE = Room.databaseBuilder(
-                                context.getApplicationContext(),
-                                AppDatabase.class,
-                                "reports_database"
-                        ).build();
-                        Log.d(TAG, "Database instance created successfully");
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error creating database instance", e);
-                        throw new RuntimeException("Failed to create database", e);
-                    }
-                }
-            }
+    public static synchronized AppDatabase getDatabase(Context context) {
+        if (instance == null) {
+            instance = Room.databaseBuilder(
+                context.getApplicationContext(),
+                AppDatabase.class,
+                DATABASE_NAME
+            ).build();
         }
-        return INSTANCE;
+        return instance;
     }
 
     public static void destroyInstance() {
         Log.d(TAG, "Destroying database instance");
-        INSTANCE = null;
+        instance = null;
     }
 } 

@@ -10,11 +10,11 @@ public class Report {
     
     public String title;
     public String description;
-    public long timestamp;
+    public long createdAt;
     
     public Report(String title, String description) {
         this.title = title;
         this.description = description;
-        this.timestamp = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
     }
 } 
